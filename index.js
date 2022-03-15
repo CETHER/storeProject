@@ -1,5 +1,8 @@
 const express = require('express');
+const cors = require('cors');
 const routerApi = require('./routes');
+const morgan = require('morgan');
+const helmet = require('helmet');
 
 const {
   logErrors,
@@ -11,13 +14,15 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(cors());
 
+app.use(helmet());
+app.use(morgan('tiny'));
 app.get('/', (req, res) => {
   res.json({
     description: 'Hola server en express',
   });
 });
-
 routerApi(app);
 
 app.use(logErrors);
