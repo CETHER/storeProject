@@ -26,16 +26,19 @@ class UserService {
 
   async update(id, changes) {
     const user = await this.findOne(id);
-    const rta = await user.update(changes);
+    const updatedAt = new Date().toISOString();
+
+    const newChanges = { ...changes, updatedAt };
+    const rta = await user.update(newChanges);
     return rta;
   }
 
   async delete(id) {
-    const deleted_at = new Date().toISOString();
+    const deletedAt = new Date().toISOString();
 
     const user = await this.findOne(id);
-    //const rta = await user.update(deleted_at); */
-    return { id: id, deleted_at: deleted_at };
+    const rta = await user.update({ deletedAt: deletedAt });
+    return rta;
   }
 }
 
