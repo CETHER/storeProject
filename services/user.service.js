@@ -2,38 +2,40 @@ const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 class UserService {
-  constructor() {
-  }
+  constructor() {}
 
   async create(data) {
-    return data;
+    const newUser = await models.User.create(data);
+    return newUser;
   }
 
   async find() {
-    try {
-      const rta = await models.User.findAll();
-      /*  const query = 'SELECT * FROM tasks';
+    const rta = await models.User.findAll();
+    /*  const query = 'SELECT * FROM tasks';
       const rta = await pool.query(query); */
-      return rta;
-    } catch (err) {
-      console.error(`[TASKS]: Message error: ${err}`);
-      console.error(`[TASKS]: Routine error: ${err.routine}`);
-    }
+    return rta;
   }
 
   async findOne(id) {
-    return { id };
+    const rta = await models.User.findByPk(id);
+    if (!rta) {
+      throw boom.notFound('User not found');
+    }
+    return rta;
   }
 
   async update(id, changes) {
-    return {
-      id,
-      changes,
-    };
+    const user = await this.findOne(id);
+    const rta = await user.update(changes);
+    return rta;
   }
 
   async delete(id) {
-    return { id };
+    const deleted_at = new Date().toISOString();
+
+    const user = await this.findOne(id);
+    //const rta = await user.update(deleted_at); */
+    return { id: id, deleted_at: deleted_at };
   }
 }
 

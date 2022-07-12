@@ -6,8 +6,9 @@ const helmet = require('helmet');
 
 const {
   logErrors,
-  errorHandler,
+  ormErrorHandler,
   boomErrorHandler,
+  errorHandler,
 } = require('./middlewares/error.handler');
 
 const app = express();
@@ -37,6 +38,7 @@ app.get('/', (req, res) => {
 routerApi(app);
 
 app.use(logErrors);
+app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
