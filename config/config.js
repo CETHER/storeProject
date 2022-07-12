@@ -1,21 +1,26 @@
 require('dotenv').config();
 
-const postgresService = {
-
-};
-
 const postgres = {
+  dbAdmin: 'postgres',
   dbHost: process.env.DB_HOST,
-  dbPort: process.env.DB_PORT,dbUser: process.env.DB_USER,
-  dbPassword: process.env.DB_PASSWORD,
+  dbPort: process.env.DB_PORT_POSTGRES,
+  dbUser: process.env.DB_USER_POSTGRES,
+  dbPassword: process.env.DB_PASSWORD_POSTGRES,
   dbName: process.env.DB_NAME,
 };
 
-
+const mysql = {
+  dbAdmin: 'mysql',
+  dbHost: process.env.DB_HOST,
+  dbPort: process.env.DB_PORT_MYSQL,
+  dbUser: process.env.DB_USER_MYSQL,
+  dbPassword: process.env.DB_PASSWORD_MYSQL,
+  dbName: process.env.DB_NAME,
+};
 
 const api = {
   env: process.env.NODE_ENV || 'dev',
   port: process.env.PORT || 3000,
 };
 
-module.exports = { postgresService, postgres, api };
+module.exports = { mysql, postgres, api };
