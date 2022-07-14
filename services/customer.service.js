@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-const { User } = require('../db/models/user.model');
+const { Op } = require('sequelize');
 const { models } = require('../libs/sequelize');
 const UserService = require('./user.service');
 const userService = new UserService();
@@ -30,8 +30,14 @@ class CustomerService {
 
   async find() {
     const rta = await models.Customer.findAll({
+      where: {
+        deletedAt: {
+          [Op.is]: null,
+        },
+      },
       include: ['user'],
     });
+
     return rta;
   }
 
@@ -40,6 +46,7 @@ class CustomerService {
     if (!rta) {
       throw boom.notFound('Customer not found');
     }
+
     return rta;
   }
 
@@ -59,11 +66,15 @@ class CustomerService {
   }
 
   async delete(id) {
+    const customer = await this.findOne(id);
+    const user = await userService.findOne(customer.userId);
     const deletedAt = new Date().toISOString();
 
-    const customer = await this.findOne(id);
-    const rta = await customer.update({ deletedAt: deletedAt });
-    return rta;
+    const rtaCustomer = await customer.update({ deletedAt: deletedAt });
+    const rtaUser = await user.update({ deletedAt: deletedAt });
+    rtaCustomer.dataValues.user = rtaUser;
+
+    return rtaCustomer;
   }
 }
 
