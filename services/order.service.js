@@ -30,7 +30,13 @@ class OrdersService {
 
   async findOne(id) {
     const rta = await models.Order.findByPk(id, {
-      include: 'customer',
+      include: [
+        {
+          association: 'customer',
+          include: ['user'],
+        },
+        'order_product',
+      ],
     });
     if (!rta) {
       throw boom.notFound('Order not found');
@@ -56,6 +62,11 @@ class OrdersService {
     const rtaOrder = await order.update({ deletedAt: deletedAt });
 
     return rtaOrder;
+  }
+
+  async addOrderProduct(data) {
+    const newOrderProduct = await models.OrderProduct.create(data);
+    return newOrderProduct;
   }
 }
 
