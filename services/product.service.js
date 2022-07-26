@@ -3,55 +3,74 @@ const { Op } = require('sequelize');
 const { models } = require('../libs/sequelize');
 
 class ProductsService {
-  constructor() {}
+	constructor() {}
 
-  async create(data) {
-    const newProduct = await models.Product.create(data);
-    return newProduct;
-  }
+	async create(data) {
+		const newProduct = await models.Product.create(data);
+		return newProduct;
+	}
 
-  async find() {
-    const rta = await models.Product.findAll({
-      where: {
-        deletedAt: {
-          [Op.is]: null,
-        },
-      },
-      include: 'category',
-    });
+	async find(query) {
+		const options = {
+			where: {
+				deletedAt: {
+					[Op.is]: null,
+				},
+			},
+			include: ['category'],
+		};
 
-    return rta;
-  }
+		const { limit, offset, price, price_min, price_max } = query;
 
-  async findOne(id) {
-    const rta = await models.Product.findByPk(id, {
-      include: 'category',
-    });
-    if (!rta) {
-      throw boom.notFound('Product not found');
-    }
+		if (limit && offset) {
+			options.limit = parseInt(limit);
+			options.offset = parseInt(offset);
+		}
 
-    return rta;
-  }
+		if (price) {
+			options.where.price = price;
+		}
 
-  async update(id, changes) {
-    const product = await this.findOne(id);
-    const updatedAt = new Date().toISOString();
+		if (price_min && price_max) {
+			options.where.price = {
+				[Op.between]: [price_min, price_max],
+			};
+		}
 
-    const productChanges = { ...changes, updatedAt };
-    const rtaProduct = await product.update(productChanges);
+		const rta = await models.Product.findAll(options);
 
-    return rtaProduct;
-  }
+		return rta;
+	}
 
-  async delete(id) {
-    const product = await this.findOne(id);
-    const deletedAt = new Date().toISOString();
+	async findOne(id) {
+		const rta = await models.Product.findByPk(id, {
+			include: 'category',
+		});
+		if (!rta) {
+			throw boom.notFound('Product not found');
+		}
 
-    const rtaProduct = await product.update({ deletedAt: deletedAt });
+		return rta;
+	}
 
-    return rtaProduct;
-  }
+	async update(id, changes) {
+		const product = await this.findOne(id);
+		const updatedAt = new Date().toISOString();
+
+		const productChanges = { ...changes, updatedAt };
+		const rtaProduct = await product.update(productChanges);
+
+		return rtaProduct;
+	}
+
+	async delete(id) {
+		const product = await this.findOne(id);
+		const deletedAt = new Date().toISOString();
+
+		const rtaProduct = await product.update({ deletedAt: deletedAt });
+
+		return rtaProduct;
+	}
 }
 
 module.exports = ProductsService;
